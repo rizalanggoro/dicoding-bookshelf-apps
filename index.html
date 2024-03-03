@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bookshelf</title>
+
+    <!-- import google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- import tailwind css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style type="text/tailwindcss">
+      :root {
+        font-family: "Nunito", sans-serif;
+      }
+
+      label {
+        @apply font-semibold;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        @apply rounded border block w-full py-2 px-4 outline-none focus:ring-lime-700 focus:ring-2 ring-offset-2 duration-300;
+      }
+
+      a {
+        @apply hover:underline hover:text-lime-700 decoration-dashed underline-offset-4 duration-300;
+      }
+
+      .filled-button {
+        @apply bg-lime-700 py-2 px-4 rounded text-white font-semibold hover:opacity-70 duration-300;
+      }
+
+      .outlined-button {
+        @apply py-2 px-4 rounded text-lime-700 border font-semibold hover:opacity-70 duration-300;
+      }
+
+      .tab-list-item {
+        @apply flex-1 py-2 rounded hover:opacity-70 font-semibold;
+      }
+
+      .tab-list-item-selected {
+        @apply bg-lime-700 text-white shadow;
+      }
+    </style>
+  </head>
+  <body>
+    <header
+      class="h-16 w-full fixed top-0 border-b backdrop-blur bg-white/70 z-[999]"
+    >
+      <!-- navbar container -->
+      <div class="flex items-center h-16 max-w-[1024px] px-4 mx-auto">
+        <a href="/">
+          <p class="font-semibold">Bookshelf Apps</p>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- dialog confirm delete -->
+      <div
+        id="modal-confirm-delete"
+        class="fixed h-screen w-full bg-black/50 z-[1000] items-center hidden"
+      >
+        <div class="bg-white max-w-[480px] mx-auto rounded-lg p-8">
+          <h1 class="text-xl font-semibold">Hapus Buku</h1>
+          <p class="mt-1" id="modal-confirm-delete-description">
+            Apakah Anda yakin akan menghapus buku berjudul
+            <span class="font-bold">{title}</span> yang ditulis oleh
+            <span class="font-bold">{author}</span>?
+          </p>
+          <p class="mt-2 text-red-600">
+            Perhatian:
+            <span class="italic"
+              >Tindakan yang Anda lakukan tidak dapat diurungkan</span
+            >
+          </p>
+
+          <div class="mt-4 text-end space-x-1">
+            <button
+              class="outlined-button"
+              onclick="onClickCancelModalConfirmDelete()"
+            >
+              Batal
+            </button>
+            <button
+              class="filled-button"
+              onclick="onClickDeleteModalConfirmDelete()"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="content" class="max-w-[512px] mx-auto px-4 pt-16">
+        <tab-list
+          default-value="all-books"
+          class="rounded-md border w-full mt-4 flex items-center p-1"
+        >
+          <button class="tab-list-item" value="all-books">Daftar buku</button>
+          <button class="tab-list-item" value="create-book">Tambah buku</button>
+          <button class="tab-list-item" value="search-book">Cari buku</button>
+        </tab-list>
+
+        <tab-content>
+          <section value="all-books" class="hidden my-4">
+            <h1 class="text-2xl font-semibold">Belum Selesai</h1>
+            <p>
+              Berikut adalah daftar beberapa buku yang Anda tambahkan dan belum
+              selesai dibaca
+            </p>
+            <ul id="list-books-undone" class="space-y-1 mt-2"></ul>
+
+            <h1 class="text-2xl font-semibold mt-8">Telah Dibaca</h1>
+            <p>
+              Berikut adalah daftar beberapa buku yang telah selesai Anda baca
+            </p>
+            <ul id="list-books-done" class="space-y-1 mt-2"></ul>
+          </section>
+
+          <section
+            value="create-book"
+            class="rounded-md border p-8 my-4 hidden"
+          >
+            <h1 class="text-2xl font-semibold">Tambah Buku Baru</h1>
+            <p>
+              Masukkan beberapa informasi berikut untuk menambahkan buku baru ke
+              dalam rak
+            </p>
+
+            <form action="" class="mt-4 space-y-2" id="form-create-book">
+              <div class="space-y-1">
+                <label for="input-title">Masukkan judul</label>
+                <input id="input-title" type="text" name="title" />
+              </div>
+
+              <div class="space-y-1">
+                <label for="input-author">Masukkan penulis</label>
+                <input id="input-author" type="text" name="author" />
+              </div>
+
+              <div class="space-y-1">
+                <label for="input-year">Masukkan tahun</label>
+                <input id="input-year" type="number" name="year" />
+              </div>
+
+              <div class="flex items-center gap-2 flex-row-reverse justify-end">
+                <label for="input-complete">Selesai dibaca</label>
+                <input
+                  id="input-complete"
+                  type="checkbox"
+                  name="isComplete"
+                  class="h-4 w-4"
+                />
+              </div>
+
+              <div class="text-end pt-2">
+                <button class="filled-button" type="submit">Selesai</button>
+              </div>
+            </form>
+          </section>
+
+          <section value="search-book" class="hidden my-4">
+            <div class="rounded-md border p-8">
+              <h1 class="text-2xl font-semibold">Cari Buku</h1>
+              <p>
+                Cari buku yang sudah Anda tambahkan dengan memasukkan judulnya
+              </p>
+
+              <form action="" class="space-y-2 mt-4" id="form-search-book">
+                <div class="space-y-1">
+                  <label for="input-search-book">Masukkan judul</label>
+                  <input id="input-search-book" type="text" name="title" />
+                </div>
+
+                <div class="text-end pt-4">
+                  <button type="submit" class="filled-button">Cari</button>
+                </div>
+              </form>
+            </div>
+
+            <ul id="list-books-searched" class="space-y-1 mt-2 hidden"></ul>
+          </section>
+        </tab-content>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- import script -->
+    <script src="./scripts/tabs.js"></script>
+    <script src="./scripts/script.js"></script>
+  </body>
+</html>
